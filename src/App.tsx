@@ -31,15 +31,20 @@ function App() {
   const [gstExcludeOptions] = useState(excludeOptions);
   const [gstIncludeOptions] = useState(includeOptions);
 
-  const calculateGST = () => {
-    if (selectedOption && selectedOption.label.includes("-")) {
-      return String((productPrice * selectedOption.value) / 100 / 2);
-    } else if (selectedOption && selectedOption.label.includes("+")) {
-      return String((productPrice * selectedOption.value) / 100 / 2);
+  function calculateCgstSgst(amount: number, gstRate: number) {
+    // Ensure GST rate is a decimal (e.g., 0.18 for 18%)
+    gstRate = gstRate / 100;
+    let revisedRate = 0;
+
+    // Formula to exclude GST
+    if (selectedOption?.label.includes("+")) {
+      revisedRate = amount * (1 + gstRate) - productPrice;
+    } else {
+      revisedRate = productPrice - amount / (1 + gstRate);
     }
 
-    return "0";
-  };
+    return revisedRate;
+  }
 
   return (
     <Box p={2}>
@@ -154,19 +159,31 @@ function App() {
           <>
             <Grid item xs={12}>
               <Typography variant={"body1"} fontWeight={"bold"}>
-                CGST: {parseFloat(calculateGST()).toFixed(2)} /-
+                CGST:{" "}
+                {parseFloat(
+                  String(
+                    calculateCgstSgst(productPrice, selectedOption.value) / 2
+                  )
+                ).toFixed(2)}
+                /-
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant={"body1"} fontWeight={"bold"}>
-                SGST: {parseFloat(calculateGST()).toFixed(2)} /-
+                SGST:{" "}
+                {parseFloat(
+                  String(
+                    calculateCgstSgst(productPrice, selectedOption.value) / 2
+                  )
+                ).toFixed(2)}
+                /-
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant={"body1"} fontWeight={"bold"}>
                 Total GST:{" "}
                 {parseFloat(
-                  String(Number(calculateGST()) + Number(calculateGST()))
+                  String(calculateCgstSgst(productPrice, selectedOption.value))
                 ).toFixed(2)}{" "}
                 /-
               </Typography>
@@ -176,25 +193,19 @@ function App() {
             </Grid>
             <Grid item xs={12}>
               <Typography variant={"body1"} fontWeight={"bold"}>
-                Without GST:{" "}
+                {selectedOption.label.includes("+")
+                  ? "Including GST"
+                  : "Excluding GST"}
+                {": "}
                 {parseFloat(
                   String(
                     selectedOption.label.includes("+")
-                      ? productPrice
-                      : productPrice - Number(calculateGST()) * 2
+                      ? calculateCgstSgst(productPrice, selectedOption.value) +
+                          productPrice
+                      : productPrice -
+                          calculateCgstSgst(productPrice, selectedOption.value)
                   )
-                ).toFixed(2)}{" "}
-                /-
-              </Typography>
-              <Typography variant={"body1"} fontWeight={"bold"}>
-                Total Amount:{" "}
-                {parseFloat(
-                  String(
-                    selectedOption.label.includes("+")
-                      ? productPrice + Number(calculateGST()) * 2
-                      : productPrice
-                  )
-                ).toFixed(2)}{" "}
+                ).toFixed(2)}
                 /-
               </Typography>
             </Grid>
