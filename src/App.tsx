@@ -153,17 +153,17 @@ function App() {
         {selectedOption && (
           <>
             <Grid item xs={12}>
-              <Typography variant={"h6"} fontWeight={"bold"}>
+              <Typography variant={"body1"} fontWeight={"bold"}>
                 CGST: {parseFloat(calculateGST()).toFixed(2)} /-
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant={"h6"} fontWeight={"bold"}>
+              <Typography variant={"body1"} fontWeight={"bold"}>
                 SGST: {parseFloat(calculateGST()).toFixed(2)} /-
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant={"h6"} fontWeight={"bold"}>
+              <Typography variant={"body1"} fontWeight={"bold"}>
                 Total GST:{" "}
                 {parseFloat(
                   String(Number(calculateGST()) + Number(calculateGST()))
@@ -175,7 +175,18 @@ function App() {
               <Divider />
             </Grid>
             <Grid item xs={12}>
-              <Typography variant={"h6"} fontWeight={"bold"}>
+              <Typography variant={"body1"} fontWeight={"bold"}>
+                Without GST:{" "}
+                {parseFloat(
+                  String(
+                    selectedOption.label.includes("+")
+                      ? productPrice
+                      : productPrice - Number(calculateGST()) * 2
+                  )
+                ).toFixed(2)}{" "}
+                /-
+              </Typography>
+              <Typography variant={"body1"} fontWeight={"bold"}>
                 Total Amount:{" "}
                 {parseFloat(
                   String(
