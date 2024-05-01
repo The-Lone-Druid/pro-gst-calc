@@ -8,21 +8,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { excludeOptions, includeOptions } from "./utils";
 import { CurrencyRupee } from "@mui/icons-material";
 
 function App() {
-  const gstForm = useForm({
-    defaultValues: {
-      productPrice: 0,
-    },
-    onSubmit: ({ value }) => {
-      console.log(value);
-    },
-  });
-  const [productPrice, setProductPrice] = useState<number>(0);
+  const [productPrice, setProductPrice] = useState("");
   const [selectedOption, setSelectedOption] = useState<{
     id: number;
     label: string;
@@ -38,9 +29,9 @@ function App() {
 
     // Formula to exclude GST
     if (selectedOption?.label.includes("+")) {
-      revisedRate = amount * (1 + gstRate) - productPrice;
+      revisedRate = amount * (1 + gstRate) - Number(productPrice);
     } else {
-      revisedRate = productPrice - amount / (1 + gstRate);
+      revisedRate = Number(productPrice) - amount / (1 + gstRate);
     }
 
     return revisedRate;
@@ -58,29 +49,23 @@ function App() {
           <Divider />
         </Grid>
         <Grid item xs={12}>
-          <gstForm.Field
+          <TextField
             name={"productPrice"}
-            children={(field) => (
-              <TextField
-                name={field.name}
-                value={field.state.value}
-                onChange={(e) => {
-                  field.handleChange(Number(e.target.value));
-                  setProductPrice(Number(e.target.value));
-                }}
-                onBlur={field.handleBlur}
-                label={"GST Amount"}
-                type={"number"}
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CurrencyRupee />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
+            value={productPrice}
+            onChange={(e) => {
+              if (/^[0-9]*$/.test(e.target.value)) {
+                setProductPrice(e.target.value);
+              }
+            }}
+            label={"GST Amount"}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CurrencyRupee />
+                </InputAdornment>
+              ),
+            }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -93,7 +78,7 @@ function App() {
           <Stack direction={"row"} alignItems={"center"} gap={2}>
             {gstExcludeOptions.map((option) => (
               <Button
-                disabled={gstForm.state.values.productPrice <= 0}
+                disabled={!productPrice}
                 variant={
                   selectedOption?.id === option.id ? "contained" : "outlined"
                 }
@@ -126,7 +111,7 @@ function App() {
           <Stack direction={"row"} alignItems={"center"} gap={2}>
             {gstIncludeOptions.map((option) => (
               <Button
-                disabled={gstForm.state.values.productPrice <= 0}
+                disabled={!productPrice}
                 variant={
                   selectedOption?.id === option.id ? "contained" : "outlined"
                 }
@@ -162,7 +147,10 @@ function App() {
                 CGST:{" "}
                 {parseFloat(
                   String(
-                    calculateCgstSgst(productPrice, selectedOption.value) / 2
+                    calculateCgstSgst(
+                      Number(productPrice),
+                      selectedOption.value
+                    ) / 2
                   )
                 ).toFixed(2)}
                 /-
@@ -173,7 +161,10 @@ function App() {
                 SGST:{" "}
                 {parseFloat(
                   String(
-                    calculateCgstSgst(productPrice, selectedOption.value) / 2
+                    calculateCgstSgst(
+                      Number(productPrice),
+                      selectedOption.value
+                    ) / 2
                   )
                 ).toFixed(2)}
                 /-
@@ -183,7 +174,12 @@ function App() {
               <Typography variant={"body1"} fontWeight={"bold"}>
                 Total GST:{" "}
                 {parseFloat(
-                  String(calculateCgstSgst(productPrice, selectedOption.value))
+                  String(
+                    calculateCgstSgst(
+                      Number(productPrice),
+                      selectedOption.value
+                    )
+                  )
                 ).toFixed(2)}{" "}
                 /-
               </Typography>
@@ -200,10 +196,15 @@ function App() {
                 {parseFloat(
                   String(
                     selectedOption.label.includes("+")
-                      ? calculateCgstSgst(productPrice, selectedOption.value) +
-                          productPrice
-                      : productPrice -
-                          calculateCgstSgst(productPrice, selectedOption.value)
+                      ? calculateCgstSgst(
+                          Number(productPrice),
+                          selectedOption.value
+                        ) + Number(productPrice)
+                      : Number(productPrice) -
+                          calculateCgstSgst(
+                            Number(productPrice),
+                            selectedOption.value
+                          )
                   )
                 ).toFixed(2)}
                 /-
