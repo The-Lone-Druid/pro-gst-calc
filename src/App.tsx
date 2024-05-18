@@ -2,8 +2,13 @@ import {
   Box,
   Button,
   Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
   InputAdornment,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
@@ -14,6 +19,9 @@ import { CurrencyRupee } from "@mui/icons-material";
 
 function App() {
   const [productPrice, setProductPrice] = useState("");
+  const [selectedType, setSelectedType] = useState<"includeGst" | "excludeGst">(
+    "includeGst"
+  );
   const [selectedOption, setSelectedOption] = useState<{
     id: number;
     label: string;
@@ -53,7 +61,7 @@ function App() {
             name={"productPrice"}
             value={productPrice}
             onChange={(e) => {
-              if (/^[0-9]*$/.test(e.target.value)) {
+              if (/^[0-9]*\.?[0-9]*$/.test(e.target.value)) {
                 setProductPrice(e.target.value);
               }
             }}
@@ -72,69 +80,91 @@ function App() {
           <Divider />
         </Grid>
         <Grid item xs={12}>
-          <Typography variant={"h6"} fontWeight={"semibold"} mb={1}>
-            Exclude GST
-          </Typography>
-          <Stack direction={"row"} alignItems={"center"} gap={2}>
-            {gstExcludeOptions.map((option) => (
-              <Button
-                disabled={!productPrice}
-                variant={
-                  selectedOption?.id === option.id ? "contained" : "outlined"
-                }
-                sx={{
-                  borderColor:
-                    selectedOption?.id === option.id
-                      ? "primary.main"
-                      : "grey.800",
-                  color:
-                    selectedOption?.id === option.id ? "white" : "grey.800",
-                }}
-                key={option.id}
-              >
-                <Typography
-                  variant={"body1"}
-                  onClick={() => {
-                    setSelectedOption(option);
-                  }}
-                >
-                  {option.label}
-                </Typography>
-              </Button>
-            ))}
-          </Stack>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">
+              Select Type
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              value={selectedType}
+              onChange={(e) => {
+                setSelectedType(e.target.value as "includeGst" | "excludeGst");
+              }}
+              name="radio-buttons-group"
+              row
+            >
+              <FormControlLabel
+                value="includeGst"
+                control={<Radio />}
+                label="Include GST (+)"
+              />
+              <FormControlLabel
+                value="excludeGst"
+                control={<Radio />}
+                label="Exclude GST (-)"
+              />
+            </RadioGroup>
+          </FormControl>
         </Grid>
         <Grid item xs={12}>
           <Typography variant={"h6"} fontWeight={"semibold"} mb={1}>
-            Include GST
+            Select GST %
           </Typography>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
-            {gstIncludeOptions.map((option) => (
-              <Button
-                disabled={!productPrice}
-                variant={
-                  selectedOption?.id === option.id ? "contained" : "outlined"
-                }
-                sx={{
-                  borderColor:
-                    selectedOption?.id === option.id
-                      ? "primary.main"
-                      : "grey.800",
-                  color:
-                    selectedOption?.id === option.id ? "white" : "grey.800",
-                }}
-                key={option.id}
-              >
-                <Typography
-                  variant={"body1"}
-                  onClick={() => {
-                    setSelectedOption(option);
+            {selectedType === "includeGst" &&
+              gstIncludeOptions.map((option) => (
+                <Button
+                  disabled={!productPrice}
+                  variant={
+                    selectedOption?.id === option.id ? "contained" : "outlined"
+                  }
+                  sx={{
+                    borderColor:
+                      selectedOption?.id === option.id
+                        ? "primary.main"
+                        : "grey.800",
+                    color:
+                      selectedOption?.id === option.id ? "white" : "grey.800",
                   }}
+                  key={option.id}
                 >
-                  {option.label}
-                </Typography>
-              </Button>
-            ))}
+                  <Typography
+                    variant={"body1"}
+                    onClick={() => {
+                      setSelectedOption(option);
+                    }}
+                  >
+                    {option.label}
+                  </Typography>
+                </Button>
+              ))}
+            {selectedType === "excludeGst" &&
+              gstExcludeOptions.map((option) => (
+                <Button
+                  disabled={!productPrice}
+                  variant={
+                    selectedOption?.id === option.id ? "contained" : "outlined"
+                  }
+                  sx={{
+                    borderColor:
+                      selectedOption?.id === option.id
+                        ? "primary.main"
+                        : "grey.800",
+                    color:
+                      selectedOption?.id === option.id ? "white" : "grey.800",
+                  }}
+                  key={option.id}
+                >
+                  <Typography
+                    variant={"body1"}
+                    onClick={() => {
+                      setSelectedOption(option);
+                    }}
+                  >
+                    {option.label}
+                  </Typography>
+                </Button>
+              ))}
           </Stack>
         </Grid>
         <Grid item xs={12}>
